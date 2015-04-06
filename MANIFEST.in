@@ -1,0 +1,4 @@
+include README.md
+include requirements.txt
+include redshift_console/queries.yaml
+recursive-include redshift_console/static/dist * 
