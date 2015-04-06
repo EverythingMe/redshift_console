@@ -1,0 +1,114 @@
+inflight_queries:
+  select query as id, trim(usename) as username, starttime as timestamp, text as query, pid as pid
+  from svv_query_inflight
+  join pg_user on svv_query_inflight.userid=pg_user.usesysid
+  order by id, sequence;
+queries_queue:
+  SELECT position,
+      start_time as timestamp,
+      trim(usename) as username,
+      stl_querytext.query as id,
+      stl_querytext.pid as pid,
+      text as query
+  FROM   stl_querytext
+  INNER JOIN stv_wlm_query_queue_state
+  ON stl_querytext.query = stv_wlm_query_queue_state.query
+  INNER JOIN pg_user
+  ON pg_user.usesysid = stl_querytext.userid
+  ORDER  BY position, sequence;
+query_alerts:
+  SELECT query as id, event, solution
+  FROM stl_alert_event_log
+  WHERE event_time
+  BETWEEN %s AND %s
+  AND query IN %s
+  ORDER BY event_time ASC;
+table_load_errors:
+  SELECT stv_tbl_perm.name as table, colname as column, err_reason as error, starttime as time, COUNT(*) as errors_count
+  FROM stl_load_errors
+  INNER JOIN (SELECT DISTINCT id,name FROM stv_tbl_perm) as stv_tbl_perm
+  ON stl_load_errors.tbl=stv_tbl_perm.id
+  WHERE starttime BETWEEN GETDATE()- INTERVAL '24 hours' AND GETDATE()
+  GROUP BY starttime, err_reason,stv_tbl_perm.name, colname
+  ORDER BY stv_tbl_perm.name, starttime;
+table_design_status:
+  DROP TABLE IF EXISTS temp_staging_tables_1;
+  DROP TABLE IF EXISTS temp_staging_tables_2;
+  DROP TABLE IF EXISTS temp_tables_report;
+  CREATE TEMP TABLE temp_staging_tables_1
+                   (schemaname TEXT,
+                    tablename TEXT,
+                    tableid BIGINT,
+                    size_in_megabytes BIGINT);
+
+  INSERT INTO temp_staging_tables_1
+    SELECT n.nspname, c.relname, c.oid,
+        (SELECT COUNT(*) FROM STV_BLOCKLIST b WHERE b.tbl = c.oid)
+    FROM pg_namespace n, pg_class c
+    WHERE n.oid = c.relnamespace
+    AND nspname NOT IN ('pg_catalog', 'pg_toast', 'information_schema')
+    AND c.relname <> 'temp_staging_tables_1';
+
+  CREATE TEMP TABLE temp_staging_tables_2
+                   (tableid BIGINT,
+                    min_blocks_per_slice BIGINT,
+                    max_blocks_per_slice BIGINT,
+                    slice_count BIGINT);
+
+  INSERT INTO temp_staging_tables_2
+    SELECT tableid, MIN(c), MAX(c), COUNT(DISTINCT slice)
+    FROM (SELECT t.tableid, slice, COUNT(*) AS c
+        FROM temp_staging_tables_1 t, STV_BLOCKLIST b
+        WHERE t.tableid = b.tbl
+        GROUP BY t.tableid, slice)
+    GROUP BY tableid;
+
+  CREATE TEMP TABLE temp_tables_report
+                   (schemaname TEXT,
+                   tablename TEXT,
+                   tableid BIGINT,
+                   size_in_mb BIGINT,
+                   has_dist_key INT,
+                   has_sort_key INT,
+                   has_col_encoding INT,
+                   pct_skew_across_slices FLOAT,
+                   pct_slices_populated FLOAT);
+
+  INSERT INTO temp_tables_report
+    SELECT t1.*,
+         CASE WHEN EXISTS (SELECT *
+                           FROM pg_attribute a
+                           WHERE t1.tableid = a.attrelid
+                             AND a.attnum > 0
+                             AND NOT a.attisdropped
+                             AND a.attisdistkey = 't')
+              THEN 1 ELSE 0 END,
+         CASE WHEN EXISTS (SELECT *
+                           FROM pg_attribute a
+                           WHERE t1.tableid = a.attrelid
+                             AND a.attnum > 0
+                             AND NOT a.attisdropped
+                             AND a.attsortkeyord > 0)
+             THEN 1 ELSE 0 END,
+        CASE WHEN EXISTS (SELECT *
+                          FROM pg_attribute a
+                          WHERE t1.tableid = a.attrelid
+                            AND a.attnum > 0
+                            AND NOT a.attisdropped
+                            AND a.attencodingtype <> 0)
+              THEN 1 ELSE 0 END,
+        100 * CAST(t2.max_blocks_per_slice - t2.min_blocks_per_slice AS FLOAT)
+              / CASE WHEN (t2.min_blocks_per_slice = 0)
+                     THEN 1 ELSE t2.min_blocks_per_slice END,
+        CAST(100 * t2.slice_count AS FLOAT) / (SELECT COUNT(*) FROM STV_SLICES)
+    FROM temp_staging_tables_1 t1, temp_staging_tables_2 t2
+    WHERE t1.tableid = t2.tableid;
+
+  SELECT * FROM temp_tables_report ORDER BY size_in_mb DESC;
+tables_rows_sort_status:
+  SELECT TRIM(pg_namespace.nspname) as schema, TRIM(pg_class.relname) as table_name, SUM(stv_tbl_perm.rows) as total_rows, SUM(stv_tbl_perm.sorted_rows) as sorted_rows, SUM(stv_tbl_perm.sorted_rows)::float/SUM(stv_tbl_perm.rows)::float as percent_sorted
+  FROM stv_tbl_perm
+  INNER JOIN pg_class  ON pg_class.relname=stv_tbl_perm.name
+  INNER JOIN pg_namespace ON pg_namespace.oid=pg_class.relnamespace
+  GROUP BY pg_namespace.nspname, pg_class.relname
+  HAVING SUM(stv_tbl_perm.rows)>0;

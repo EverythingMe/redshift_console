@@ -1,0 +1,6 @@
+click==1.1
+tornado==4.1
+futures==2.2.0
+pyyaml==3.11
+psycopg2==2.6
+toro==0.8

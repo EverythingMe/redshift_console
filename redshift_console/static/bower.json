@@ -1,0 +1,16 @@
+{
+  "name": "redshift-console",
+  "version": "0.1.0",
+  "dependencies": {
+    "jquery": "~2.1.1",
+    "modernizr": "^2.8.3",
+    "es6-promise": "~2.0.1",
+    "fetch": "~0.7.0",
+    "bootstrap": "~3.3.4",
+    "pace": "~1.0.2",
+    "momentjs": "~2.9.0",
+    "underscore": "~1.8.2",
+    "font-awesome": "~4.3.0",
+    "react-router": "~0.13.2"
+  }
+}

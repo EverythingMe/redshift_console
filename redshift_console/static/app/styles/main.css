@@ -1,0 +1,42 @@
+body {
+    padding-top: 70px;
+    padding-bottom: 20px;
+}
+
+div.query-body {
+    overflow: scroll;
+}
+
+table.queries {
+}
+
+td.query {
+    overflow: hidden;
+    width: 500px;
+    display: block;
+    text-overflow: ellipsis;
+}
+
+td.table-name {
+    width: 300px;
+    word-wrap: break-word;
+    /*display: block;*/
+}
+
+td.schema-name {
+    width: 150px;
+    word-wrap: break-word;
+    /*display: block;*/
+}
+
+td.query.collapsed {
+    height: 70px;
+}
+
+span.time-warning {
+    background-color: #f0ad4e;
+}
+
+span.time-danger {
+    background-color: #d9534f;
+}
