@@ -4,7 +4,7 @@ _Redshift Console_'s goal is to be the tool to monitor and manage a Redshift clu
 
 After over a year of managing our Redshift cluster with a collection of scripts and queries, we decided to bundle this into a more user friendly tool that can be used by a wider audience. This project also aims to uncover all the useful information hidden in [Redshift's Developer Guide](http://docs.aws.amazon.com/redshift/latest/dg/) (such as the [table design status](http://docs.aws.amazon.com/redshift/latest/dg/c_analyzing-table-design.html) query).
 
-[TODO: add screenshots]
+![Screenshots](https://dl.dropboxusercontent.com/u/2186704/rdc_screenshots.gif)
 
 ### Features
 
