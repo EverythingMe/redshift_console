@@ -1,6 +1,3 @@
-build:
-	python setup.py sdist
-
 deps:
 	npm install -g gulp
 	npm install
@@ -12,6 +9,9 @@ clean:
 	rm -rf dist
 	rm -rf redshift_console.egg-info
 
+build_package:
+	python setup.py sdist
+
 test_package:
 	rm -rf 27-sdist
 	virtualenv 27-sdist
@@ -19,5 +19,8 @@ test_package:
 	27-sdist/bin/redshift-console version
 	rm -rf 27-sdist
 
-upload:
+update_package_description:
+	python setup.py register
+
+upload_package:
 	python setup.py sdist upload
