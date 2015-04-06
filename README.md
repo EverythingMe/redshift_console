@@ -1,1 +1,49 @@
 # Redshift Console
+
+_Redshift Console_'s goal is to be the tool to monitor and manage a Redshift cluster. The first release has basic tools to monitor running queries, WLM queue and your tables/schemas.
+
+After over a year of managing our Redshift cluster with a collection of scripts and queries, we decided to bundle this into a more user friendly tool that can be used by a wider audience. This project also aims to uncover all the useful information hidden in [Redshift's Developer Guide](http://docs.aws.amazon.com/redshift/latest/dg/) (such as the [table design status](http://docs.aws.amazon.com/redshift/latest/dg/c_analyzing-table-design.html) query).
+
+[TODO: add screenshots]
+
+### Features
+
+* Inflight queries view with option to cancel any query and view related alerts (when available; from [STL_ALERT_EVENT_LOG](http://docs.aws.amazon.com/redshift/latest/dg/r_STL_ALERT_EVENT_LOG.html)).
+* WLM queue view.
+* Schemas view with additional information for each table including: total size (rows/MB), unsorted area size, is the table properly distributed and more.
+
+### Roadmap
+
+This project is safe for usage, but still in its early stage (version 0.1). Future versions will include:
+
+* LOAD status views (recent load operations and erros).
+* Vacuum status.
+* SNS/CloudWatch integration to show metrics and events from AWS' console.
+* Proactive notifications re. important events in the system: long running queries, problems, changes to the schema, dangerous levels of unsorted areas and more.
+
+Of users' feedback will always be taken into account, specially if it's accompanied by a pull request...
+
+## Usage
+
+1. The easiest way to install the project is from pypi:
+
+  ```bash
+  $ pip install redshift-console
+  ```
+
+2. Settings are set from environment variables. The main setting to set is the connection string to your Redshift cluster: (make sure the user has sufficient permissions)
+
+  ```bash
+  $ export REDSHIFT_CONNECTION_STRING='user= password= host= port= dbname='
+  ```
+
+3. Start the server:
+
+   ```bash
+   $ redshift-console runserver
+   Starting server on port 9001 (debug mode: False).
+   ```
+
+## Authors
+
+[Arik Fraimovich](http://github.com/arikfr) and [Oren Itamar](http://github.com/orenitamar).
