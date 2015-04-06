@@ -13,3 +13,6 @@ test_package:
 	27-sdist/bin/pip install dist/redshift-console-0.1.0.tar.gz
 	27-sdist/bin/redshift-console version
 	rm -rf 27-sdist
+
+upload:
+	python setup.py sdist upload
