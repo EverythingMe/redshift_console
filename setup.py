@@ -16,7 +16,7 @@ setup(
     version='0.1.0',
     description='Monitor and manage your Redshift cluster.',
     long_description=read('README.md'),
-    url='http://github.com/EverythingMe/redshift-console/',
+    url='http://github.com/EverythingMe/redshift_console/',
     license='Apache',
     author='Arik Fraimovich, Oren Itamar',
     author_email='opensource@everything.me',
