@@ -1,6 +1,11 @@
 build:
 	python setup.py sdist
 
+deps:
+	npm install -g gulp
+	npm install
+	bower install
+
 clean:
 	rm -rf 27-sdist
 	rm -rf build
