@@ -2,7 +2,7 @@
 import click
 import tornado
 import tornado.log
-from redshift_console import settings, app
+from redshift_console import settings, app, __version__
 
 
 @click.group()
@@ -21,6 +21,10 @@ def runserver(host, port, debug):
     application = app.create_app(debug)
     application.listen(port)
     tornado.ioloop.IOLoop.instance().start()
+
+@cli.command(help="Show version")
+def version():
+    print __version__
 
 
 @cli.command(help="Show settings")

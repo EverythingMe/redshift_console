@@ -12,9 +12,6 @@ connection_pool = psycopg2.pool.ThreadedConnectionPool(settings.REDSHIFT['connec
 queries = redshift.Queries(connection_pool, datetime.timedelta(seconds=int(settings.DATA['inflight_refresh_interval'])))
 tables = redshift.Tables(connection_pool, datetime.timedelta(seconds=int(settings.DATA['tables_refresh_interval'])))
 
-queries.start()
-tables.start()
-
 
 def handle_default(obj):
     if hasattr(obj, 'isoformat'):
@@ -43,13 +40,6 @@ class TableDefinitionHandler(BaseHandler):
     def get(self, schema_name, table_name):
         definition = tables.get(schema_name, table_name)
         self.write_json({'definition': definition, 'updated_at': tables.updated_at})
-
-
-class TablesDesignStatusHandler(BaseHandler):
-    @gen.coroutine
-    def get(self):
-        result = tables.get_schemas()
-        self.write_json({'results': result})
 
 
 class SchemasHandler(BaseHandler):
@@ -98,6 +88,8 @@ class MainHandler(BaseHandler):
 
 def create_app(debug):
     static_assets_path = os.path.join(os.path.dirname(__file__), settings.API['static_assets_path'])
+    queries.start()
+    tables.start()
 
     return tornado.web.Application([(r"/", MainHandler),
                                     (r"/api/queries/inflight$", QueriesInflightHandler),
@@ -105,8 +97,6 @@ def create_app(debug):
                                     (r"/api/queries/cancel/(.*)$", QueriesCancelHandler),
                                     (r"/api/schemas$", SchemasHandler),
                                     (r"/api/schemas/(.*)/(.*)$", TableDefinitionHandler),
-                                    (r"/api/tables/(.*)/(.*)$", TableDefinitionHandler),
-                                    (r"/api/tables/design_status$", TablesDesignStatusHandler),
                                     (r"/api/copy/errors$", LoadErrorsHandler),
                                     (r"/api/status$", StatusHandler),
                                     (r"/(.*)", tornado.web.StaticFileHandler, {"path": static_assets_path})],
