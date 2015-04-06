@@ -21,7 +21,7 @@ This project is safe for usage, but still in its early stage (version 0.1). Futu
 * SNS/CloudWatch integration to show metrics and events from AWS' console.
 * Proactive notifications re. important events in the system: long running queries, problems, changes to the schema, dangerous levels of unsorted areas and more.
 
-Of users' feedback will always be taken into account, specially if it's accompanied by a pull request...
+We are always happy to receive feedback and suggestions,especially if they accompanied by a pull request.
 
 ## Usage
 
