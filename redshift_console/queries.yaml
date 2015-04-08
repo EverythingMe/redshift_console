@@ -24,13 +24,18 @@ query_alerts:
   AND query IN %s
   ORDER BY event_time ASC;
 table_load_errors:
-  SELECT stv_tbl_perm.name as table, colname as column, err_reason as error, starttime as time, COUNT(*) as errors_count
+  SELECT TRIM(pg_namespace.nspname) as schema,
+         TRIM(pg_class.relname) as table,
+         stl_load_errors.colname as column,
+         stl_load_errors.err_reason as error,
+         stl_load_errors.starttime as time,
+         COUNT(*) as errors_count
   FROM stl_load_errors
-  INNER JOIN (SELECT DISTINCT id,name FROM stv_tbl_perm) as stv_tbl_perm
-  ON stl_load_errors.tbl=stv_tbl_perm.id
+  INNER JOIN pg_class ON pg_class.OID=stl_load_errors.tbl
+  INNER JOIN pg_namespace ON pg_namespace.oid=pg_class.relnamespace
   WHERE starttime BETWEEN GETDATE()- INTERVAL '24 hours' AND GETDATE()
-  GROUP BY starttime, err_reason,stv_tbl_perm.name, colname
-  ORDER BY stv_tbl_perm.name, starttime;
+  GROUP BY starttime, err_reason,TRIM(pg_namespace.nspname),TRIM(pg_class.relname), colname
+  ORDER BY TRIM(pg_class.relname), starttime;
 table_design_status:
   DROP TABLE IF EXISTS temp_staging_tables_1;
   DROP TABLE IF EXISTS temp_staging_tables_2;
@@ -108,7 +113,7 @@ table_design_status:
 tables_rows_sort_status:
   SELECT TRIM(pg_namespace.nspname) as schema, TRIM(pg_class.relname) as table_name, SUM(stv_tbl_perm.rows) as total_rows, SUM(stv_tbl_perm.sorted_rows) as sorted_rows, SUM(stv_tbl_perm.sorted_rows)::float/SUM(stv_tbl_perm.rows)::float as percent_sorted
   FROM stv_tbl_perm
-  INNER JOIN pg_class  ON pg_class.relname=stv_tbl_perm.name
+  INNER JOIN pg_class  ON pg_class.OID=stv_tbl_perm.id
   INNER JOIN pg_namespace ON pg_namespace.oid=pg_class.relnamespace
   GROUP BY pg_namespace.nspname, pg_class.relname
   HAVING SUM(stv_tbl_perm.rows)>0;
