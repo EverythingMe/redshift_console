@@ -7,18 +7,53 @@ var React = window.React = require('react'),
     Link = require('../../bower_components/react-router/build/global/ReactRouter.js').Link,
     helpers = require('../helpers.js');
 
+
+var LoadError = React.createClass({
+    render: function (){
+        return (
+            <tr>
+                <td>MyTable</td>
+                <td>MyColumn</td>
+                <td>MyError</td>
+                <td>MyTime</td>
+                <td>MyErrorCount</td>
+            </tr>
+        );
+    }
+});
+
+var ErrorsTable = React.createClass({
+        render: function (){
+            return (
+                <table>
+                    <thead>
+                        <th>Table</th>
+                        <th>Column</th>
+                        <th>Error</th>
+                        <th>Time</th>
+                        <th>Errors Count</th>
+                    </thead>
+                    <tbody>
+                        <LoadError/>
+                    </tbody>
+                </table>
+            );
+        }
+    }
+);
+
 var LoadsPage = React.createClass({
     render: function() {
         return (
             <div>
-                <div className="col-md-12">
-                    <RouteHandler />
-                </div>
+                <ErrorsTable />
             </div>
         );
     }
 });
 
-var LoadError = React.create
+module.exports = {
+    'LoadsPage': LoadsPage
+}
 
-)
+
