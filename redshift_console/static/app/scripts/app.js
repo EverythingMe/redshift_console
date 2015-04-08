@@ -114,7 +114,10 @@ var routes = (
             <Route name="table_definition" path=":schema/:table" handler={tables.TableDefinition}/>
             <Redirect from="/schemas" to="/schemas/status" />
         </Route>
-        <Route name="loads" handler={loads.LoadsPage}/>
+        <Route name="loads" handler={loads.LoadsPage}>
+            <Route name="errors" path="errors" handler={loads.ErrorsTable}/>
+            <Redirect from="/loads" to="/loads/errors" />
+        </Route>
         <Route name="status" handler={StatusPage} />
         <Redirect from="/" to="/queries/inflight" />
     </Route>
