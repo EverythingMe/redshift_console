@@ -3,6 +3,7 @@
 var React = window.React = require('react'),
     queries = require('./components/queries.js'),
     tables = require('./components/tables.js'),
+    loads = require('./components/loads.js'),
     TimeAgo = require('./components/common.js').TimeAgo,
     Router = require('../bower_components/react-router/build/global/ReactRouter.js');
 
@@ -36,6 +37,7 @@ var App = React.createClass({
                                 <li><a href="#">Home</a></li>
                                 <li className={this.context.router.isActive('queries') ? 'active' : ''}><Link to="queries">Queries</Link></li>
                                 <li className={this.context.router.isActive('schemas') ? 'active' : ''}><Link to="schemas">Schemas</Link></li>
+                                <li className={this.context.router.isActive('loads') ? 'active' : ''}><Link to="loads">Loads</Link></li>
                                 <li className={this.context.router.isActive('status') ? 'active' : ''}><Link to="status">Status</Link></li>
                             </ul>
                         </div>
@@ -111,6 +113,10 @@ var routes = (
             <Route name="schemas_status" path="status" handler={tables.SchemasStatus}/>
             <Route name="table_definition" path=":schema/:table" handler={tables.TableDefinition}/>
             <Redirect from="/schemas" to="/schemas/status" />
+        </Route>
+        <Route name="loads" handler={loads.LoadsPage}>
+            <Route name="errors" path="errors" handler={loads.ErrorsTable}/>
+            <Redirect from="/loads" to="/loads/errors" />
         </Route>
         <Route name="status" handler={StatusPage} />
         <Redirect from="/" to="/queries/inflight" />

@@ -69,7 +69,8 @@ class QueriesCancelHandler(BaseHandler):
 
 class LoadErrorsHandler(BaseHandler):
     def get(self):
-        self.write_json(tables.load_errors)
+        self.write_json({'errors': tables.load_errors, 'updated_at': tables.load_errors_updated_at})
+
 
 
 class StatusHandler(BaseHandler):
