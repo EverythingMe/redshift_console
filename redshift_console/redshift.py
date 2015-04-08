@@ -282,6 +282,7 @@ class Tables(DataFetcher):
         query = sql_queries['table_load_errors']
         load_errors = yield self.execute_query(query)
         self.load_errors = load_errors
+        self.load_errors_updated_at = datetime.datetime.utcnow()
 
     @coroutine
     def _fetch_tables_rows_sort_status(self):
