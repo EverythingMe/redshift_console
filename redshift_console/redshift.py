@@ -224,6 +224,7 @@ class Tables(DataFetcher):
         self.schemas = {}
         self.load_errors = {}
         self.tables_rows_sort_status = {}
+        self.table_id_mapping = {}
 
     def get(self, namespace, table):
         return self.schemas.get(namespace, {}).get(table, None)
@@ -246,10 +247,10 @@ class Tables(DataFetcher):
 
     @coroutine
     def refresh(self):
+        yield self._fetch_table_id_mapping()
         yield self._fetch_schema()
         yield self._fetch_tables_rows_sort_status()
         yield self._fetch_design_status()
-
         yield self._fetch_load_errors()
 
     @coroutine
@@ -281,6 +282,9 @@ class Tables(DataFetcher):
     def _fetch_load_errors(self):
         query = sql_queries['table_load_errors']
         load_errors = yield self.execute_query(query)
+        for row in load_errors:
+            row['table'] = self.table_id_mapping[row['table_id']]['table_name']
+            row['schema'] = self.table_id_mapping[row['table_id']]['schema_name']
         self.load_errors = load_errors
         self.load_errors_updated_at = datetime.datetime.utcnow()
 
@@ -288,9 +292,12 @@ class Tables(DataFetcher):
     def _fetch_tables_rows_sort_status(self):
         query = sql_queries['tables_rows_sort_status']
         res = yield self.execute_query(query)
-
         for row in res:
-            table = self.get(row['schema'], row['table_name'])
+            schema, table_name = self.table_id_mapping[row['table_id']]['schema_name'], \
+                                 self.table_id_mapping[row['table_id']]['table_name']
+
+
+            table = self.get(schema, table_name)
             if table is not None:
                 table.setdefault('metadata', {})
                 table['metadata']['total_rows'] = row['total_rows']
@@ -306,3 +313,17 @@ class Tables(DataFetcher):
                 table.setdefault('metadata', {})
                 for key in ('has_col_encoding', 'pct_slices_populated', 'size_in_mb', 'pct_skew_across_slices', 'has_sort_key', 'has_dist_key'):
                     table['metadata'][key] = row[key]
+
+    @coroutine
+    def _fetch_table_id_mapping(self):
+        """
+        Stores a dictionary with table name and schema name
+        per table id.
+        """
+        result = yield self.execute_query(sql_queries['table_id_mapping'])
+        mapping = {row.pop('table_id'): row for row in result}
+        self.table_id_mapping = mapping
+
+
+
+
