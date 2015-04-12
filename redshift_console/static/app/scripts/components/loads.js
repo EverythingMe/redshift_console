@@ -12,6 +12,7 @@ var LoadError = React.createClass({
     render: function (){
         return (
             <tr>
+                <td>{this.props.error.schema}</td>
                 <td>{this.props.error.table}</td>
                 <td>{this.props.error.column}</td>
                 <td>{this.props.error.error}</td>
@@ -32,6 +33,7 @@ var ErrorsTable = React.createClass({
                     <div className="pull-right badge">Updated: <TimeAgo timestamp={this.props.loadErrors.updatedAt} interval={5000} /></div>
                     <table className="table">
                         <thead>
+                            <th>Schema</th>
                             <th>Table</th>
                             <th>Column</th>
                             <th>Error</th>
