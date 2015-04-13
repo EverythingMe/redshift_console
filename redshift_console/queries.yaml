@@ -104,10 +104,10 @@ table_design_status:
   SELECT * FROM temp_tables_report ORDER BY size_in_mb DESC;
 tables_rows_sort_status:
   SELECT id as table_id, SUM(rows) as total_rows, SUM(sorted_rows) as sorted_rows, SUM(sorted_rows)::float/SUM(rows)::float as percent_sorted
-  FROM stv_tbl_perm
+  FROM stv_tbl_perm WHERE db_id=%s AND temp=0
   GROUP BY id
   HAVING SUM(stv_tbl_perm.rows)>0;
 table_id_mapping:
-  SELECT pg_class.OID as table_id, pg_class.relname as table_name, pg_namespace.nspname as schema_name 
+  SELECT pg_class.OID as table_id, TRIM(pg_class.relname) as table_name, TRIM(pg_namespace.nspname) as schema_name
   FROM pg_class INNER JOIN pg_namespace 
   ON pg_class.relnamespace=pg_namespace.OID;
