@@ -1,7 +1,12 @@
+VERSION=$(shell python -m redshift_console version)
+
 deps:
 	npm install -g gulp bower
 	npm install
 	bower install
+
+bump_version:
+	bumpversion $(PART)
 
 clean:
 	rm -rf 27-sdist
@@ -16,7 +21,7 @@ build_package:
 test_package:
 	rm -rf 27-sdist
 	virtualenv 27-sdist
-	27-sdist/bin/pip install dist/redshift-console-0.1.0.tar.gz
+	27-sdist/bin/pip install dist/redshift-console-$(VERSION).tar.gz
 	27-sdist/bin/redshift-console version
 	rm -rf 27-sdist
 
