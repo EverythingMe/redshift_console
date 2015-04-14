@@ -13,7 +13,7 @@ def read(*paths):
 
 setup(
     name='redshift-console',
-    version='0.1.0',
+    version='0.1.1',
     description='Monitor and manage your Redshift cluster.',
     long_description=read('README.md'),
     url='http://github.com/EverythingMe/redshift_console/',

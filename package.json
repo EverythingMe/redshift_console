@@ -1,6 +1,6 @@
 {
   "name": "redshift-console",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "dependencies": {},
   "devDependencies": {
     "del": "~0.1.3",
