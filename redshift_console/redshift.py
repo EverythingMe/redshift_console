@@ -227,12 +227,20 @@ class Tables(DataFetcher):
         self.tables_rows_sort_status = {}
         self.table_id_mapping = {}
         self._db_id = None
+        self.load_errors_updated_at = None
 
     def get(self, namespace, table):
         return self.schemas.get(namespace, {}).get(table, None)
 
     @coroutine
     def _fetch_current_db_id(self):
+        """
+        db_id is used to limit the querying of STV_TBL_PERM.
+        pg_class and pg_namespace are limited to the scope of
+        the current connection (and therefore to a single database)
+        while STV_TBL_PERM contains info on tables from all databases
+        in the cluster.
+        """
         with self._get_connection() as connection:
             dbname = re.search("dbname='(\w+)'", connection.dsn).group(1)
             with connection.cursor() as cursor:

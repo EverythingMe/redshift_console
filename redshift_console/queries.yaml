@@ -103,6 +103,10 @@ table_design_status:
 
   SELECT * FROM temp_tables_report ORDER BY size_in_mb DESC;
 tables_rows_sort_status:
+# The query is limited to the current database in use,
+# since STV_TBL_PERM holds info on tables from all databases
+# in contrary to pg_class and pg_namespace which are limited
+# to the database of the current connection.
   SELECT id as table_id, SUM(rows) as total_rows, SUM(sorted_rows) as sorted_rows, SUM(sorted_rows)::float/SUM(rows)::float as percent_sorted
   FROM stv_tbl_perm WHERE db_id=%s AND temp=0
   GROUP BY id
