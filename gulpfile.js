@@ -154,7 +154,9 @@ gulp.task('watch', ['html', 'bundle'], function () {
 gulp.task('build', ['html', 'buildBundle', 'images', 'fonts', 'extras'], function() {
     gulp.src('dist/scripts/app.js')
         .pipe($.uglify())
-        .pipe($.stripDebug())
+        // We use alert() for production code, so until we migrate it to proper
+        // Modal, we can't use stripDebug.
+        // .pipe($.stripDebug())
         .pipe(gulp.dest('dist/scripts'));
 });
 
