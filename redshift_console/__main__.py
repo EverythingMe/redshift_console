@@ -2,7 +2,7 @@
 import click
 import tornado
 import tornado.log
-from redshift_console import settings, app, __version__
+from redshift_console import settings, __version__
 
 
 @click.group()
@@ -15,6 +15,7 @@ def cli():
 @click.option('--port', default=5000, help='Port to bind with')
 @click.option('--debug', is_flag=True, help='Run with debug mode (auto code reload, verbose errors)')
 def runserver(host, port, debug):
+    from redshift_console import app
     print "Starting server on port {} (debug mode: {}).".format(port, debug)
     tornado.ioloop.IOLoop.instance().set_blocking_log_threshold(0.5)
     tornado.log.enable_pretty_logging()

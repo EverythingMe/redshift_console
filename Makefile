@@ -10,6 +10,7 @@ clean:
 	rm -rf redshift_console.egg-info
 
 build_package:
+	gulp build
 	python setup.py sdist
 
 test_package:
