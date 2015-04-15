@@ -6,6 +6,7 @@ import yaml
 import os
 import toro
 import settings
+import re
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.gen import coroutine, Return
 from tornado.concurrent import run_on_executor
@@ -224,9 +225,27 @@ class Tables(DataFetcher):
         self.schemas = {}
         self.load_errors = {}
         self.tables_rows_sort_status = {}
+        self.table_id_mapping = {}
+        self._db_id = None
+        self.load_errors_updated_at = None
 
     def get(self, namespace, table):
         return self.schemas.get(namespace, {}).get(table, None)
+
+    @coroutine
+    def _fetch_current_db_id(self):
+        """
+        db_id is used to limit the querying of STV_TBL_PERM.
+        pg_class and pg_namespace are limited to the scope of
+        the current connection (and therefore to a single database)
+        while STV_TBL_PERM contains info on tables from all databases
+        in the cluster.
+        """
+        with self._get_connection() as connection:
+            dbname = re.search("dbname='(\w+)'", connection.dsn).group(1)
+            with connection.cursor() as cursor:
+                cursor.execute('SELECT OID FROM pg_database WHERE datname=%s', (dbname, ))
+                self._db_id = cursor.fetchone()[0]
 
     def get_schemas(self):
         schemas = {}
@@ -246,22 +265,25 @@ class Tables(DataFetcher):
 
     @coroutine
     def refresh(self):
+        if not self._db_id:
+            yield self._fetch_current_db_id()
         yield self._fetch_schema()
         yield self._fetch_tables_rows_sort_status()
         yield self._fetch_design_status()
-
         yield self._fetch_load_errors()
 
     @coroutine
     def _fetch_schema(self):
-        results = yield self.execute_query("select nspname as name from pg_namespace where nspowner <> 1;")
-        namespaces = map(lambda r: "'%s'" % r['name'], results)
+        results = yield self.execute_query(sql_queries['table_id_mapping'])
+        namespaces = list(set(map(lambda r: "'%s'" % r['schema_name'], results)))
+        tables_ids = {row.pop('table_id'): row for row in results}
+        self.table_id_mapping = tables_ids
         namespaces.insert(0, "'$user'")
         namespaces.insert(1, "'public'")
 
         search_path_query = 'set search_path to {};'.format(', '.join(namespaces))
 
-        columns = yield self.execute_query(search_path_query + "SELECT * FROM pg_table_def WHERE schemaname <> 'pg_catalog';", namespaces)
+        columns = yield self.execute_query(search_path_query + "SELECT * FROM pg_table_def WHERE schemaname NOT IN ('pg_catalog', 'pg_toast', 'information_schema');", namespaces)
         schema = {}
         for col in columns:
             namespace = schema.setdefault(col['schemaname'], {})
@@ -281,16 +303,23 @@ class Tables(DataFetcher):
     def _fetch_load_errors(self):
         query = sql_queries['table_load_errors']
         load_errors = yield self.execute_query(query)
+        for row in load_errors:
+            row['table'] = self.table_id_mapping[row['table_id']]['table_name']
+            row['schema'] = self.table_id_mapping[row['table_id']]['schema_name']
         self.load_errors = load_errors
         self.load_errors_updated_at = datetime.datetime.utcnow()
 
     @coroutine
     def _fetch_tables_rows_sort_status(self):
         query = sql_queries['tables_rows_sort_status']
-        res = yield self.execute_query(query)
+        res = yield self.execute_query(query, (self._db_id,))
 
         for row in res:
-            table = self.get(row['schema'], row['table_name'])
+            schema, table_name = self.table_id_mapping[row['table_id']]['schema_name'], \
+                                 self.table_id_mapping[row['table_id']]['table_name']
+
+
+            table = self.get(schema, table_name)
             if table is not None:
                 table.setdefault('metadata', {})
                 table['metadata']['total_rows'] = row['total_rows']
@@ -306,3 +335,8 @@ class Tables(DataFetcher):
                 table.setdefault('metadata', {})
                 for key in ('has_col_encoding', 'pct_slices_populated', 'size_in_mb', 'pct_skew_across_slices', 'has_sort_key', 'has_dist_key'):
                     table['metadata'][key] = row[key]
+
+
+
+
+
