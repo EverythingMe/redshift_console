@@ -42,7 +42,7 @@ We are always happy to receive feedback and suggestions, especially if they are 
 
    ```bash
    $ redshift-console runserver
-   Starting server on port 9001 (debug mode: False).
+   Starting server on port 5000 (debug mode: False).
    ```
 
 ## Authors
