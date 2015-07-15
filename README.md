@@ -44,7 +44,7 @@ We are always happy to receive feedback and suggestions, especially if they are 
    $ redshift-console runserver
    Starting server on port 5000 (debug mode: False).
    ```
-Or use Docker:
+#### Or You Can Use Docker
   ```bash
    $ docker run -e REDSHIFT_CONNECTION_STRING="user= password= host= port=5439 dbname=" -p 5000:5000 arikfr/redshift-console
    Starting server on port 5000 (debug mode: False).
