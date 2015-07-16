@@ -26,6 +26,10 @@ We are always happy to receive feedback and suggestions, especially if they are 
 
 ## Usage
 
+You can either use the PyPi package or the docker image.
+
+#### PyPi
+
 1. The easiest way to install the project is from pypi:
 
   ```bash
@@ -44,9 +48,10 @@ We are always happy to receive feedback and suggestions, especially if they are 
    $ redshift-console runserver
    Starting server on port 5000 (debug mode: False).
    ```
-#### Or You Can Use Docker
+   
+#### Docker
   ```bash
-   $ docker run -e REDSHIFT_CONNECTION_STRING="user= password= host= port=5439 dbname=" -p 5000:5000 arikfr/redshift-console
+   $ docker run -e REDSHIFT_CONNECTION_STRING="user= password= host= port=5439 dbname=" -p 5000:5000 everythingme/redshift-console
    Starting server on port 5000 (debug mode: False).
    ```
 
