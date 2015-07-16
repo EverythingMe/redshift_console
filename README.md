@@ -26,9 +26,9 @@ We are always happy to receive feedback and suggestions, especially if they are 
 
 ## Usage
 
-You can either use the PyPi package or the docker image.
+You can either use the PyPI package or the docker image.
 
-#### PyPi
+#### PyPI
 
 1. The easiest way to install the project is from pypi:
 
