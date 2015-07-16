@@ -20,25 +20,25 @@ var SchemasPage = React.createClass({
 var TableStatus = React.createClass({
     render: function() {
         var link = "#schemas/" + this.props.schemaName + "/" + this.props.table.name;
-        if (this.props.table.total_rows == 0) {
+        if (this.props.table.total_rows === 0) {
             return (
                 <tr>
                     <td className="table-name"><a href={link}>{helpers.truncate(this.props.table.name)}</a></td>
                     <td colSpan="6">Empty</td>
                 </tr>
-            )
+            );
         }
 
         return (
             <tr>
                 <td className="table-name"><a href={link}>{helpers.truncate(this.props.table.name)}</a></td>
                 <td>{helpers.formatSize(this.props.table.size_in_mb)}</td>
-                <td>{(this.props.table.percent_sorted*100).toFixed(2)}%</td>
+                <td>{helpers.formatPercentage(this.props.table.percent_sorted)}</td>
                 <td>{helpers.formatBool(this.props.table.has_dist_key)}</td>
                 <td>{helpers.formatBool(this.props.table.has_sort_key)}</td>
                 <td>{helpers.formatBool(this.props.table.has_col_encoding)}</td>
-                <td>{this.props.table.pct_skew_across_slices.toFixed(2)}%</td>
-                <td className={helpers.textClass(this.props.table.pct_slices_populated, 90, 50)}>{this.props.table.pct_slices_populated.toFixed(2)}%</td>
+                <td>{helpers.toFixed(this.props.table.pct_skew_across_slices, 2)}%</td>
+                <td className={helpers.textClass(this.props.table.pct_slices_populated, 90, 50)}>{helpers.toFixed(this.props.table.pct_slices_populated, 2)}%</td>
             </tr>
         );
     }
@@ -170,9 +170,9 @@ var TableDefinition = React.createClass({
                 </ol>
                 <span className="pull-right badge">Updated: <TimeAgo timestamp={this.state.updatedAt} interval={30000}/></span>
                 <p>
-                    <strong>Rows:</strong> {this.state.metadata.total_rows.toLocaleString()} ({(this.state.metadata.percent_sorted*100).toFixed(2)}% sorted, {helpers.formatSize(this.state.metadata.size_in_mb)})<br/>
-                    <strong>Distribution Skew:</strong> {this.state.metadata.pct_skew_across_slices.toFixed(2)}%<br/>
-                    <strong>Slices Populated:</strong> {this.state.metadata.pct_slices_populated.toFixed(2)}%
+                    <strong>Rows:</strong> {this.state.metadata.total_rows.toLocaleString()} ({helpers.formatPercentage(this.state.metadata.percent_sorted)} sorted, {helpers.formatSize(this.state.metadata.size_in_mb)})<br/>
+                    <strong>Distribution Skew:</strong> {helpers.toFixed(this.state.metadata.pct_skew_across_slices, 2)}%<br/>
+                    <strong>Slices Populated:</strong> {helpers.toFixed(this.state.metadata.pct_slices_populated, 2)}%
                 </p>
                 <table className="table table-striped">
                     <thead>
