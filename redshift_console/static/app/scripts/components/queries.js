@@ -1,11 +1,9 @@
 var React = window.React = require('react'),
     moment = require('../../bower_components/momentjs/moment.js'),
     _ = require('../../bower_components/underscore/underscore.js'),
-    RouteHandler = require('../../bower_components/react-router/build/global/ReactRouter.js').RouteHandler,
+    RouteHandler = require('react-router').RouteHandler,
     TimeAgo = require('./common.js').TimeAgo,
-    Sidebar = require('./common.js').Sidebar,
-    WaitingForData = require('./common.js').WaitingForData,
-    helpers = require('../helpers.js');
+    Sidebar = require('./common.js').Sidebar;
 
 var QueriesPage = React.createClass({
     getInitialState: function() {

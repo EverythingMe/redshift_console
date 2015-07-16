@@ -1,10 +1,8 @@
 var React = window.React = require('react'),
-    moment = require('../../bower_components/momentjs/moment.js'),
-    RouteHandler = require('../../bower_components/react-router/build/global/ReactRouter.js').RouteHandler,
+    RouteHandler = require('react-router').RouteHandler,
     TimeAgo = require('./common.js').TimeAgo,
-    Sidebar = require('./common.js').Sidebar,
     WaitingForData = require('./common.js').WaitingForData,
-    Link = require('../../bower_components/react-router/build/global/ReactRouter.js').Link,
+    Link = require('react-router').Link,
     helpers = require('../helpers.js');
 
 var SchemasPage = React.createClass({
