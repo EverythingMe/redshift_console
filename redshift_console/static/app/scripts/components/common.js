@@ -1,5 +1,5 @@
-var React = window.React = require('react'),
-    Link = require('../../bower_components/react-router/build/global/ReactRouter.js').Link,
+var React = require('react'),
+    Link = require('react-router').Link,
     moment = require('../../bower_components/momentjs/moment.js');
 
 

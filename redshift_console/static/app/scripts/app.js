@@ -5,7 +5,7 @@ var React = window.React = require('react'),
     tables = require('./components/tables.js'),
     loads = require('./components/loads.js'),
     TimeAgo = require('./components/common.js').TimeAgo,
-    Router = require('../bower_components/react-router/build/global/ReactRouter.js');
+    Router = require('react-router');
 
 var DefaultRoute = Router.DefaultRoute;
 var Link = Router.Link;

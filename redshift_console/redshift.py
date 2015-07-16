@@ -242,7 +242,10 @@ class Tables(DataFetcher):
         in the cluster.
         """
         with self._get_connection() as connection:
-            dbname = re.search("dbname='(\w+)'", connection.dsn).group(1)
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT current_database()")
+                dbname = cursor.fetchone()[0]
+
             with connection.cursor() as cursor:
                 cursor.execute('SELECT OID FROM pg_database WHERE datname=%s', (dbname, ))
                 self._db_id = cursor.fetchone()[0]
@@ -335,8 +338,3 @@ class Tables(DataFetcher):
                 table.setdefault('metadata', {})
                 for key in ('has_col_encoding', 'pct_slices_populated', 'size_in_mb', 'pct_skew_across_slices', 'has_sort_key', 'has_dist_key'):
                     table['metadata'][key] = row[key]
-
-
-
-
-

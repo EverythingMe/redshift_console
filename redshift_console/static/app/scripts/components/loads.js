@@ -1,11 +1,7 @@
 var React = window.React = require('react'),
-    moment = require('../../bower_components/momentjs/moment.js'),
-    RouteHandler = require('../../bower_components/react-router/build/global/ReactRouter.js').RouteHandler,
+    RouteHandler = require('react-router').RouteHandler,
     TimeAgo = require('./common.js').TimeAgo,
-    Sidebar = require('./common.js').Sidebar,
-    WaitingForData = require('./common.js').WaitingForData,
-    Link = require('../../bower_components/react-router/build/global/ReactRouter.js').Link,
-    helpers = require('../helpers.js');
+    Sidebar = require('./common.js').Sidebar;
 
 
 var LoadError = React.createClass({
@@ -25,7 +21,7 @@ var LoadError = React.createClass({
 var ErrorsTable = React.createClass({
         render: function (){
             var createItem = function(error){
-                return <LoadError error={error}/>
+                return <LoadError error={error}/>;
             };
             return (
                 <div>
@@ -43,7 +39,7 @@ var ErrorsTable = React.createClass({
                         </tbody>
                     </table>
                 </div>
-            )
+            );
         }
     }
 );
@@ -93,5 +89,3 @@ module.exports = {
     'LoadsPage': LoadsPage,
     'ErrorsTable': ErrorsTable
 }
-
-
