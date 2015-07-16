@@ -6,16 +6,33 @@ from pip.req import parse_requirements
 
 install_reqs = parse_requirements('requirements.txt', session=pip.download.PipSession())
 
-def read(*paths):
-    """Build a file path from *paths* and return the contents."""
-    with open(os.path.join(*paths), 'r') as f:
-        return f.read()
+def read_readme(path):
+    with open(path, 'r') as f:
+        content = f.read()
+
+    try:
+        import pypandoc
+        content = pypandoc.convert(content, 'rst', format="md")
+
+        # Remove screenshots, they don't render well on PyPi:
+        content = content.replace('.. figure:: https://dl.dropboxusercontent.com/u/2186704/rdc_screenshots.gif\n   :alt: Screenshots\n\n   Screenshots\n\n', '')
+
+        # Strip roadmap and everything below it:
+        content = content.split('Roadmap\n-------\n\n')[0]
+
+        # Bring back authors:
+        content = content + "Authors\n-------\n\n`Arik Fraimovich <http://github.com/arikfr>`__ and `Oren\nItamar <http://github.com/orenitamar>`__.\n"
+
+    except:
+        print "Warning: pypandoc missing. Install it to convert README from Markdown to restructedText."
+
+    return content
 
 setup(
     name='redshift-console',
     version='0.1.2',
     description='Monitor and manage your Redshift cluster.',
-    long_description=read('README.md'),
+    long_description=read_readme('README.md'),
     url='http://github.com/EverythingMe/redshift_console/',
     license='Apache',
     author='Arik Fraimovich, Oren Itamar',
