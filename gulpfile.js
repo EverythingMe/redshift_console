@@ -128,11 +128,12 @@ gulp.task('extras', function () {
 
 // Watch
 gulp.task('watch', ['html', 'bundle'], function () {
-
+    var port = process.env['PORT'] || 9001;
+    
     browserSync({
         notify: false,
         logPrefix: 'BS',
-        proxy: 'http://localhost:9001/'
+        proxy: 'http://localhost:'+port+'/'
     });
 
     gulp.watch('app/scripts/**/*.js', ['scripts', reload]);
