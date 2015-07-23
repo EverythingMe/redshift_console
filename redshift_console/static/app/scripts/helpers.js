@@ -11,7 +11,7 @@ var formatSize = function(size) {
 };
 
 var formatBool = function(boolValue) {
-    if (boolValue === 1 || boolValue === true) {
+    if (!!boolValue) {
         return "Yes";
     } else {
         return "No";

@@ -150,15 +150,20 @@ var TableDefinition = React.createClass({
         }
 
         var createItem = function(column) {
+            var sortKey = "No";
+            if (column.sortkey > 0) {
+                sortKey = "Yes (" + column.sortkey + ")";
+            }
+
             return (
                 <tr>
                     <td>{column.name}</td>
                     <td>{column.type}</td>
                     <td>{column.encoding}</td>
-                    <td>{helpers.formatBool(column.sortkey)}</td>
+                    <td>{sortKey}</td>
                     <td>{helpers.formatBool(column.distkey)}</td>
                 </tr>
-            )
+            );
         };
 
         return (
