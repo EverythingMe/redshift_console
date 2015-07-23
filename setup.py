@@ -30,7 +30,7 @@ def read_readme(path):
 
 setup(
     name='redshift-console',
-    version='0.1.2',
+    version='0.1.3',
     description='Monitor and manage your Redshift cluster.',
     long_description=read_readme('README.md'),
     url='http://github.com/EverythingMe/redshift_console/',
