@@ -51,7 +51,7 @@ You can either use the PyPI package or the docker image.
    
 #### Docker
   ```bash
-   $ docker run -e REDSHIFT_CONNECTION_STRING="user= password= host= port=5439 dbname=" -p 5000:5000 everythingme/redshift-console
+   $ docker run -e REDSHIFT_CONNECTION_STRING="user= password= host= port=5439 dbname=" -p 5000:5000 everythingme/redshift_console
    Starting server on port 5000 (debug mode: False).
    ```
 
