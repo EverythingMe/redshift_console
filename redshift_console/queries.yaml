@@ -1,32 +1,43 @@
 inflight_queries:
-  select query as id, trim(usename) as username, starttime as timestamp, text as query, pid as pid
-  from svv_query_inflight
-  join pg_user on svv_query_inflight.userid=pg_user.usesysid
-  order by id, sequence;
+  SELECT query AS id,
+      TRIM(usename) AS username,
+      starttime AS TIMESTAMP,
+      text AS query,
+      pid AS pid
+  FROM svv_query_inflight
+  JOIN pg_user
+  ON svv_query_inflight.userid = pg_user.usesysid
+  ORDER BY id, SEQUENCE;
 queries_queue:
   SELECT position,
       start_time as timestamp,
-      trim(usename) as username,
+      TRIM(usename) as username,
       stl_querytext.query as id,
       stl_querytext.pid as pid,
       text as query
-  FROM   stl_querytext
+  FROM stl_querytext
   INNER JOIN stv_wlm_query_queue_state
   ON stl_querytext.query = stv_wlm_query_queue_state.query
   INNER JOIN pg_user
   ON pg_user.usesysid = stl_querytext.userid
-  ORDER  BY position, sequence;
+  ORDER BY position, sequence;
 query_alerts:
-  SELECT query as id, event, solution
+  SELECT query as id,
+      event,
+      solution
   FROM stl_alert_event_log
   WHERE event_time
   BETWEEN %s AND %s
   AND query IN %s
   ORDER BY event_time ASC;
 table_load_errors:
-  SELECT tbl as table_id, colname as column, err_reason as error, starttime as time, COUNT(*) as errors_count
+  SELECT tbl as table_id,
+      colname as column,
+      err_reason as error,
+      starttime as time,
+      COUNT(*) as errors_count
   FROM stl_load_errors
-  WHERE starttime BETWEEN GETDATE()- INTERVAL '24 hours' AND GETDATE()
+  WHERE starttime BETWEEN GETDATE() - INTERVAL '24 hours' AND GETDATE()
   GROUP BY tbl, starttime, err_reason, colname;
 table_design_status:
   DROP TABLE IF EXISTS temp_staging_tables_1;
@@ -39,7 +50,9 @@ table_design_status:
                     size_in_megabytes BIGINT);
 
   INSERT INTO temp_staging_tables_1
-    SELECT n.nspname, c.relname, c.oid,
+    SELECT n.nspname,
+        c.relname,
+        c.oid,
         (SELECT COUNT(*) FROM STV_BLOCKLIST b WHERE b.tbl = c.oid)
     FROM pg_namespace n, pg_class c
     WHERE n.oid = c.relnamespace
@@ -73,19 +86,19 @@ table_design_status:
 
   INSERT INTO temp_tables_report
     SELECT t1.*,
-         CASE WHEN EXISTS (SELECT *
-                           FROM pg_attribute a
-                           WHERE t1.tableid = a.attrelid
-                             AND a.attnum > 0
-                             AND NOT a.attisdropped
-                             AND a.attisdistkey = 't')
-              THEN 1 ELSE 0 END,
-         CASE WHEN EXISTS (SELECT *
-                           FROM pg_attribute a
-                           WHERE t1.tableid = a.attrelid
-                             AND a.attnum > 0
-                             AND NOT a.attisdropped
-                             AND a.attsortkeyord > 0)
+        CASE WHEN EXISTS (SELECT *
+                          FROM pg_attribute a
+                          WHERE t1.tableid = a.attrelid
+                            AND a.attnum > 0
+                            AND NOT a.attisdropped
+                            AND a.attisdistkey = 't')
+             THEN 1 ELSE 0 END,
+        CASE WHEN EXISTS (SELECT *
+                          FROM pg_attribute a
+                          WHERE t1.tableid = a.attrelid
+                            AND a.attnum > 0
+                            AND NOT a.attisdropped
+                            AND a.attsortkeyord > 0)
              THEN 1 ELSE 0 END,
         CASE WHEN EXISTS (SELECT *
                           FROM pg_attribute a
@@ -93,7 +106,7 @@ table_design_status:
                             AND a.attnum > 0
                             AND NOT a.attisdropped
                             AND a.attencodingtype <> 0)
-              THEN 1 ELSE 0 END,
+             THEN 1 ELSE 0 END,
         100 * CAST(t2.max_blocks_per_slice - t2.min_blocks_per_slice AS FLOAT)
               / CASE WHEN (t2.min_blocks_per_slice = 0)
                      THEN 1 ELSE t2.min_blocks_per_slice END,
@@ -107,11 +120,18 @@ tables_rows_sort_status:
 # since STV_TBL_PERM holds info on tables from all databases
 # in contrary to pg_class and pg_namespace which are limited
 # to the database of the current connection.
-  SELECT id as table_id, SUM(rows) as total_rows, SUM(sorted_rows) as sorted_rows, SUM(sorted_rows)::float/SUM(rows)::float as percent_sorted
-  FROM stv_tbl_perm WHERE db_id=%s AND temp=0
+  SELECT id as table_id,
+      SUM(rows) as total_rows,
+      SUM(sorted_rows) as sorted_rows,
+      SUM(sorted_rows)::float/SUM(rows)::float as percent_sorted
+  FROM stv_tbl_perm
+  WHERE db_id=%s AND temp=0
   GROUP BY id
   HAVING SUM(stv_tbl_perm.rows)>0;
 table_id_mapping:
-  SELECT pg_class.OID as table_id, TRIM(pg_class.relname) as table_name, TRIM(pg_namespace.nspname) as schema_name
-  FROM pg_class INNER JOIN pg_namespace 
+  SELECT pg_class.OID as table_id,
+      TRIM(pg_class.relname) as table_name,
+      TRIM(pg_namespace.nspname) as schema_name
+  FROM pg_class
+  INNER JOIN pg_namespace
   ON pg_class.relnamespace=pg_namespace.OID;
