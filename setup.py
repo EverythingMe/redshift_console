@@ -15,7 +15,7 @@ def read_readme(path):
         content = pypandoc.convert(content, 'rst', format="md")
 
         # Remove screenshots, they don't render well on PyPi:
-        content = content.replace('.. figure:: https://dl.dropboxusercontent.com/u/2186704/rdc_screenshots.gif\n   :alt: Screenshots\n\n   Screenshots\n\n', '')
+        content = content.replace('.. figure:: https://raw.githubusercontent.com/EverythingMe/redshift_console/master/assets/rdc_screenshots.gif\n   :alt: Screenshots\n\n   Screenshots\n\n', '')
 
         # Strip roadmap and everything below it:
         content = content.split('Roadmap\n-------\n\n')[0]
