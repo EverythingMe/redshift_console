@@ -8,6 +8,16 @@ inflight_queries:
   JOIN pg_user
   ON svv_query_inflight.userid = pg_user.usesysid
   ORDER BY id, SEQUENCE;
+queries_history:
+    SELECT query AS id,
+        database as db,
+        querytxt as query,
+        endtime AS endtime
+    FROM stl_query
+    WHERE querytxt NOT LIKE '%stl_query%'
+    AND querytxt NOT LIKE '%stl_alert_event_log%'
+    AND querytxt NOT LIKE '%svv_query_inflight%'
+    ORDER BY starttime DESC LIMIT 20;
 queries_queue:
   SELECT position,
       start_time as timestamp,

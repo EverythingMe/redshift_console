@@ -15,6 +15,10 @@ var QueriesPage = React.createClass({
             queriesQueue: {
                 queries: [],
                 updatedAt: null
+            },
+            queriesHistory: {
+                queries: [],
+                updatedAt: null
             }
         };
     },
@@ -27,6 +31,15 @@ var QueriesPage = React.createClass({
             if (component.isMounted()) {
                 component.setState({inflightQueries: { queries: _.sortBy(json.inflight_queries, 'id'), updatedAt: json.updated_at}});
                 setTimeout(component.refresh, 10000);
+            }
+        });
+
+        fetch('/api/queries/history').then(function(response) {
+            return response.json();
+        }).then(function(json) {
+            if (component.isMounted()) {
+                component.setState({queriesHistory: { queries: _.sortBy(json.queries_history, 'endtime'), updatedAt: json.updated_at}});
+                setTimeout(component.refresh, 100000);
             }
         });
 
@@ -48,6 +61,10 @@ var QueriesPage = React.createClass({
                 route: 'inflight'
             },
             {
+                name: <span>Queries History <span className="badge">{this.state.queriesHistory.queries.length}</span></span>,
+                route: 'queries_history'
+            },
+            {
                 name: <span>Queries Queue <span className="badge">{this.state.queriesQueue.queries.length}</span></span>,
                 route: 'queries_queue'
             }
@@ -56,7 +73,7 @@ var QueriesPage = React.createClass({
             <div>
                 <Sidebar links={links} />
                 <div className="col-md-10">
-                    <RouteHandler inflightQueries={this.state.inflightQueries} queriesQueue={this.state.queriesQueue}/>
+                    <RouteHandler inflightQueries={this.state.inflightQueries} queriesQueue={this.state.queriesQueue} queriesHistory={this.state.queriesHistory}/>
                 </div>
             </div>
         );
@@ -119,6 +136,30 @@ var QueriesQueue = React.createClass({
     }
 })
 
+var QueriesHistory = React.createClass({
+    render: function() {
+        var createItem = function(query) {
+            return <QueryHistory key={query.query} query={query} />;
+        };
+        return (
+          <div>
+                <div className="pull-right badge">Updated: <TimeAgo timestamp={this.props.queriesHistory.updatedAt} interval={5000} /></div>
+                <table className="table table-stripped queries">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>DB</th>
+                            <th>Query</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {this.props.queriesHistory.queries.map(createItem)}
+                    </tbody>
+                </table>
+            </div>
+        );
+    }
+})
 
 var QueryExecutionTime = React.createClass({
     componentWillMount: function() {
@@ -222,8 +263,25 @@ var Query = React.createClass({
     }
 });
 
+var QueryHistory = React.createClass({
+    getInitialState: function() {
+        return {className: 'query collapsed'};
+    },
+    render: function() {
+        return (
+            <tr>
+                <td>{this.props.query.id}</td>
+                <td>{this.props.query.db}</td>
+                <td>{this.props.query.query}</td>
+            </tr>
+        );
+    }
+});
+
+
 module.exports = {
     'QueriesPage': QueriesPage,
     'InflightQueries': InflightQueries,
-    'QueriesQueue': QueriesQueue
+    'QueriesQueue': QueriesQueue,
+    'QueriesHistory': QueriesHistory
 }

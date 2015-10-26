@@ -106,6 +106,7 @@ var routes = (
     <Route name="app" path="/" handler={App}>
         <Route name="queries" handler={queries.QueriesPage}>
             <Route name="inflight" handler={queries.InflightQueries} />
+            <Route name="queries_history" handler={queries.QueriesHistory} />
             <Route name="queries_queue" path="queue" handler={queries.QueriesQueue} />
             <Redirect from="/queries" to="/queries/inflight" />
         </Route>
