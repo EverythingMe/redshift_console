@@ -47,6 +47,10 @@ class SchemasHandler(BaseHandler):
         results = tables.get_schemas()
         self.write_json({'results': results})
 
+class QueriesHistoryHandler(BaseHandler):
+    def get(self):
+        self.write_json({'queries_history': queries.queries_history.values(),
+                         'updated_at': queries.queries_history_updated_at})
 
 class QueriesInflightHandler(BaseHandler):
     def get(self):
@@ -94,6 +98,7 @@ def create_app(debug):
 
     return tornado.web.Application([(r"/", MainHandler),
                                     (r"/api/queries/inflight$", QueriesInflightHandler),
+                                    (r"/api/queries/history$", QueriesHistoryHandler),
                                     (r"/api/queries/queue$", QueriesQueueHandler),
                                     (r"/api/queries/cancel/(.*)$", QueriesCancelHandler),
                                     (r"/api/schemas$", SchemasHandler),

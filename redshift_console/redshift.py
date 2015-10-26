@@ -133,6 +133,8 @@ class Queries(DataFetcher):
         self.queries_queue = []
         self.queries_queue_updated_at = None
         self.alerts_updated_at = None
+        self.queries_history = {}
+        self.queries_history_updated_at = None
 
     def _set_cancellation_in_progres(self, pid):
         for q in chain(self.inflight_queries.values(), self.queries_queue):
@@ -168,6 +170,7 @@ class Queries(DataFetcher):
         yield self._fetch_inflight_queries()
         yield self._fetch_query_alerts()
         yield self._fetch_queries_queue()
+        yield self._fetch_queries_history()
 
     @coroutine
     def _fetch_inflight_queries(self):
@@ -183,6 +186,12 @@ class Queries(DataFetcher):
             query['cancellation_in_progress'] = False
 
         self.inflight_queries_updated_at = datetime.datetime.utcnow()
+
+    @coroutine
+    def _fetch_queries_history(self):
+        queries_history = yield self.execute_query(sql_queries['queries_history'])
+        self.queries_history = {q['id']: q for q in _concat_query_text(queries_history)}
+        self.queries_history_updated_at = datetime.datetime.utcnow()
 
     @coroutine
     def _fetch_query_alerts(self):
